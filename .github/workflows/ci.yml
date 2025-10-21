@@ -36,7 +36,7 @@ jobs:
 
       - name: Validate docker-compose.yml
         run: |
-          cd local-dev && docker-compose config > /dev/null
+          cd local-dev && docker compose config > /dev/null
 
       - name: Summary
         run: |
@@ -96,10 +96,10 @@ jobs:
       - name: Start services
         run: |
           cd local-dev
-          docker-compose up -d kong-database
+          docker compose up -d kong-database
           sleep 10
-          docker-compose up kong-migration
-          docker-compose up -d kong
+          docker compose up kong-migration
+          docker compose up -d kong
 
       - name: Wait for Kong to be ready
         run: |
@@ -124,12 +124,12 @@ jobs:
       - name: Check Kong logs
         if: always()
         run: |
-          cd local-dev && docker-compose logs kong
+          cd local-dev && docker compose logs kong
 
       - name: Cleanup
         if: always()
         run: |
-          cd local-dev && docker-compose down -v
+          cd local-dev && docker compose down -v
 
       - name: Summary
         if: success()
