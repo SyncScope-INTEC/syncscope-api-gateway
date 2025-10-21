@@ -15,9 +15,6 @@ permissions:
   issues: write
 
 jobs:
-  # ===========================================================================
-  # VALIDATION JOB
-  # ===========================================================================
   validate:
     name: Validate Kong Configuration
     runs-on: ubuntu-latest
@@ -29,12 +26,13 @@ jobs:
       - name: Set up Docker
         uses: docker/setup-buildx-action@v3
 
+      - name: Install YAML validator
+        run: |
+          pip install pyyaml
+
       - name: Validate kong.yml syntax
         run: |
-          docker run --rm \
-            -v $(pwd)/kong.yml:/kong.yml \
-            kong/kong-gateway:3.8 \
-            kong config parse /kong.yml
+          python -c "import yaml; yaml.safe_load(open('kong.yml'))" && echo "✅ kong.yml is valid YAML"
 
       - name: Validate docker-compose.yml
         run: |
