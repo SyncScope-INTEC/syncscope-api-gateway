@@ -10,7 +10,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "sh -c 'export KONG_PROXY_LISTEN=\"0.0.0.0:${PORT:-8080}\" && kong migrations bootstrap && kong start --vv'"
+startCommand = "sh -c 'export KONG_PROXY_LISTEN=\"0.0.0.0:${PORT:-8080}\" && kong migrations bootstrap && kong config db_import /etc/kong/kong.yml && kong start --vv'"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
 
