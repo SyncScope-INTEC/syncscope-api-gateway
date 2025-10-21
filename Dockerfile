@@ -14,7 +14,6 @@ ENV KONG_ADMIN_ACCESS_LOG=/dev/stdout
 ENV KONG_PROXY_ERROR_LOG=/dev/stderr
 ENV KONG_ADMIN_ERROR_LOG=/dev/stderr
 ENV KONG_LOG_LEVEL=${KONG_LOG_LEVEL:-info}
-ENV KONG_PROXY_LISTEN="0.0.0.0:${PORT:-8080}"
 ENV KONG_ADMIN_LISTEN="0.0.0.0:8081"
 ENV KONG_DECLARATIVE_CONFIG=/etc/kong/kong.yml
 ENV KONG_NGINX_WORKER_PROCESSES=${KONG_NGINX_WORKER_PROCESSES:-auto}
@@ -34,4 +33,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
 
 EXPOSE 8080 8081 8443
 
-CMD ["sh", "-c", "kong migrations bootstrap && kong start --vv"]
+CMD ["sh", "-c", "export KONG_PROXY_LISTEN=\"0.0.0.0:${PORT:-8080}\" && kong migrations bootstrap && kong start --vv"]
