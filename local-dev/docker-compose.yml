@@ -29,7 +29,7 @@ services:
   # Kong Database Migrations
   # =============================================================================
   kong-migration:
-    image: kong:3.4.0-alpine
+    image: kong:3.4
     container_name: syncscope-kong-migration
     command: kong migrations bootstrap
     environment:
@@ -50,7 +50,7 @@ services:
   # Kong API Gateway
   # =============================================================================
   kong:
-    image: kong:3.4.0-alpine
+    image: kong:3.4
     container_name: syncscope-kong
     environment:
       # Database Configuration
@@ -167,32 +167,3 @@ volumes:
   kong-db-data:
     driver: local
     name: syncscope-kong-db-data
-
-# =============================================================================
-# NOTES
-# =============================================================================
-# 1. Start all services:
-#    docker-compose up -d
-#
-# 2. Start only Kong and database:
-#    docker-compose up -d kong-database kong-migration kong
-#
-# 3. View logs:
-#    docker-compose logs -f kong
-#
-# 4. Stop all services:
-#    docker-compose down
-#
-# 5. Remove volumes (WARNING: deletes all data):
-#    docker-compose down -v
-#
-# 6. Access points:
-#    - Kong Proxy: http://localhost:8080
-#    - Kong Admin API: http://localhost:8081
-#    - Konga Admin UI: http://localhost:1337
-#
-# 7. Configure Konga:
-#    - First time setup: Create admin user
-#    - Add Kong connection: http://kong:8081
-#
-# =============================================================================
