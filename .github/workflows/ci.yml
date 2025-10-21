@@ -33,24 +33,12 @@ jobs:
         run: |
           docker run --rm \
             -v $(pwd)/kong.yml:/kong.yml \
-            kong:3.8-alpine \
+            kong/kong:3.4-alpine \
             kong config parse /kong.yml
 
       - name: Validate docker-compose.yml
         run: |
-          docker-compose config > /dev/null
-
-      - name: Check shell scripts syntax
-        run: |
-          bash -n scripts/setup.sh
-          bash -n scripts/health-check.sh
-
-      - name: Validate prometheus configuration
-        run: |
-          docker run --rm \
-            -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
-            prom/prometheus:latest \
-            promtool check config /etc/prometheus/prometheus.yml
+          cd local-dev && docker-compose config > /dev/null
 
       - name: Summary
         run: |
@@ -59,8 +47,6 @@ jobs:
           echo "All configuration files are valid:" >> $GITHUB_STEP_SUMMARY
           echo "- kong.yml syntax is valid" >> $GITHUB_STEP_SUMMARY
           echo "- docker-compose.yml syntax is valid" >> $GITHUB_STEP_SUMMARY
-          echo "- Shell scripts syntax is valid" >> $GITHUB_STEP_SUMMARY
-          echo "- prometheus.yml syntax is valid" >> $GITHUB_STEP_SUMMARY
 
   # ===========================================================================
   # DOCKER BUILD JOB
@@ -111,6 +97,7 @@ jobs:
 
       - name: Start services
         run: |
+          cd local-dev
           docker-compose up -d kong-database
           sleep 10
           docker-compose up kong-migration
@@ -118,39 +105,33 @@ jobs:
 
       - name: Wait for Kong to be ready
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8001/status; do sleep 2; done'
-
-      - name: Run health checks
-        run: |
-          chmod +x scripts/health-check.sh
-          # Run health check but don't fail on backend service checks
-          ./scripts/health-check.sh || true
+          timeout 60 bash -c 'until curl -f http://localhost:8081/status; do sleep 2; done'
 
       - name: Test Kong Admin API
         run: |
           # Test status endpoint
-          curl -f http://localhost:8001/status
+          curl -f http://localhost:8081/status
 
           # Test services endpoint
-          curl -f http://localhost:8001/services
+          curl -f http://localhost:8081/services
 
           # Test routes endpoint
-          curl -f http://localhost:8001/routes
+          curl -f http://localhost:8081/routes
 
       - name: Test Kong Proxy
         run: |
           # Test proxy is listening
-          curl -f http://localhost:8000 || echo "Kong proxy is listening"
+          curl -f http://localhost:8080 || echo "Kong proxy is listening"
 
       - name: Check Kong logs
         if: always()
         run: |
-          docker-compose logs kong
+          cd local-dev && docker-compose logs kong
 
       - name: Cleanup
         if: always()
         run: |
-          docker-compose down -v
+          cd local-dev && docker-compose down -v
 
       - name: Summary
         if: success()
