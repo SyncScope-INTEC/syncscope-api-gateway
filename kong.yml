@@ -55,6 +55,19 @@ services:
       - auth
 
     routes:
+      # Root path
+      - name: auth-root
+        paths:
+          - /auth/
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - auth
+
       # Public authentication routes (no JWT required)
       - name: auth-login
         paths:
@@ -118,6 +131,40 @@ services:
           - public
           - health
 
+      # API documentation endpoints
+      - name: auth-api-schema
+        paths:
+          - /auth/api/schema
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: auth-api-docs
+        paths:
+          - /auth/api/docs
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: auth-api-redoc
+        paths:
+          - /auth/api/redoc
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
 
   # ---------------------------------------------------------------------------
   # Monitoring Service (Port 8002)
@@ -134,6 +181,20 @@ services:
       - monitoring
 
     routes:
+      # Root path
+      - name: monitoring-root
+        paths:
+          - /monitoring/
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - monitoring
+
+      # Protected monitoring routes
       - name: monitoring-routes
         paths:
           - /monitoring
@@ -149,6 +210,7 @@ services:
           - protected
           - monitoring
 
+      # Health check endpoints
       - name: monitoring-health
         paths:
           - /monitoring/health
@@ -156,6 +218,74 @@ services:
         tags:
           - public
           - health
+
+      - name: monitoring-simple-health
+        paths:
+          - /monitoring/simple-health
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # Debug endpoints (public for testing)
+      - name: monitoring-debug-test-auth
+        paths:
+          - /monitoring/debug/test-auth-service
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - debug
+
+      - name: monitoring-debug-test-settings
+        paths:
+          - /monitoring/debug/test-settings
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - debug
+
+      # API documentation endpoints
+      - name: monitoring-api-schema
+        paths:
+          - /monitoring/api/schema
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: monitoring-api-docs
+        paths:
+          - /monitoring/api/docs
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: monitoring-api-redoc
+        paths:
+          - /monitoring/api/redoc
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
 
 
   # ---------------------------------------------------------------------------
@@ -173,6 +303,20 @@ services:
       - management
 
     routes:
+      # Root path
+      - name: management-root
+        paths:
+          - /management/
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - management
+
+      # Protected management routes
       - name: management-routes
         paths:
           - /management
@@ -188,6 +332,7 @@ services:
           - protected
           - management
 
+      # Health check endpoints
       - name: management-health
         paths:
           - /management/health
@@ -195,6 +340,84 @@ services:
         tags:
           - public
           - health
+
+      - name: management-health-detailed
+        paths:
+          - /management/health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: management-health-ready
+        paths:
+          - /management/health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: management-health-live
+        paths:
+          - /management/health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # Favicon
+      - name: management-favicon
+        paths:
+          - /management/favicon.ico
+        methods:
+          - GET
+        strip_path: false
+        tags:
+          - public
+          - static
+
+      # API documentation endpoints
+      - name: management-api-schema
+        paths:
+          - /management/api/schema
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: management-api-docs
+        paths:
+          - /management/api/docs
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: management-api-redoc
+        paths:
+          - /management/api/redoc
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
 
 
   # ---------------------------------------------------------------------------
@@ -212,6 +435,20 @@ services:
       - analytics
 
     routes:
+      # Root path
+      - name: analytics-root
+        paths:
+          - /analytics/
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - analytics
+
+      # Protected analytics routes
       - name: analytics-routes
         paths:
           - /analytics
@@ -227,6 +464,7 @@ services:
           - protected
           - analytics
 
+      # Health check endpoints
       - name: analytics-health
         paths:
           - /analytics/health
@@ -234,6 +472,73 @@ services:
         tags:
           - public
           - health
+
+      - name: analytics-health-detailed
+        paths:
+          - /analytics/health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: analytics-health-ready
+        paths:
+          - /analytics/health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: analytics-health-live
+        paths:
+          - /analytics/health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # API documentation endpoints
+      - name: analytics-api-schema
+        paths:
+          - /analytics/api/schema
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: analytics-api-docs
+        paths:
+          - /analytics/api/docs
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: analytics-api-redoc
+        paths:
+          - /analytics/api/redoc
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
 
 
   # ---------------------------------------------------------------------------
@@ -251,6 +556,20 @@ services:
       - alerts
 
     routes:
+      # Root path
+      - name: alerts-root
+        paths:
+          - /alerts/
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - alerts
+
+      # Protected alerts routes
       - name: alerts-routes
         paths:
           - /alerts
@@ -266,6 +585,7 @@ services:
           - protected
           - alerts
 
+      # Health check endpoints
       - name: alerts-health
         paths:
           - /alerts/health
@@ -273,6 +593,73 @@ services:
         tags:
           - public
           - health
+
+      - name: alerts-health-detailed
+        paths:
+          - /alerts/health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: alerts-health-ready
+        paths:
+          - /alerts/health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: alerts-health-live
+        paths:
+          - /alerts/health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # API documentation endpoints
+      - name: alerts-api-schema
+        paths:
+          - /alerts/api/schema
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: alerts-api-docs
+        paths:
+          - /alerts/api/docs
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
+
+      - name: alerts-api-redoc
+        paths:
+          - /alerts/api/redoc
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - docs
 
 
 # =============================================================================
