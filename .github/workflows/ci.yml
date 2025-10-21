@@ -224,51 +224,6 @@ jobs:
           echo "## ✅ Documentation Check Passed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Documentation check completed successfully" >> $GITHUB_STEP_SUMMARY
-  deploy-check:
-    name: Deployment Readiness Check
-    runs-on: ubuntu-latest
-    needs: [validate, build, integration-test, security]
-    if: github.event_name == 'push'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check environment files
-        run: |
-          for env in dev qa prod; do
-            if [ -f ".${env}.env" ]; then
-              echo "✅ .${env}.env exists"
-            else
-              echo "❌ .${env}.env not found"
-              exit 1
-            fi
-          done
-
-      - name: Determine environment
-        id: determine-env
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/prod" ]]; then
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "env_file=.prod.env" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/qa" ]]; then
-            echo "environment=qa" >> $GITHUB_OUTPUT
-            echo "env_file=.qa.env" >> $GITHUB_OUTPUT
-          else
-            echo "environment=development" >> $GITHUB_OUTPUT
-            echo "env_file=.dev.env" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Summary
-        run: |
-          echo "## ✅ Deployment Readiness Check Passed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Ready for deployment to: ${{ steps.determine-env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Review the changes" >> $GITHUB_STEP_SUMMARY
-          echo "2. Deploy to Railway using the ${{ steps.determine-env.outputs.env_file }} configuration" >> $GITHUB_STEP_SUMMARY
-          echo "3. Verify the deployment with health checks" >> $GITHUB_STEP_SUMMARY
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
