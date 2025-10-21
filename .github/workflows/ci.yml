@@ -33,7 +33,7 @@ jobs:
         run: |
           docker run --rm \
             -v $(pwd)/kong.yml:/kong.yml \
-            kong/kong:3.4-alpine \
+            kong/kong-gateway:3.8 \
             kong config parse /kong.yml
 
       - name: Validate docker-compose.yml
