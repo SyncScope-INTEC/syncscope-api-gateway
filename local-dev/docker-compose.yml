@@ -1,0 +1,198 @@
+version: '3.9'
+
+services:
+  # =============================================================================
+  # PostgreSQL Database for Kong
+  # =============================================================================
+  kong-database:
+    image: postgres:16-alpine
+    container_name: syncscope-kong-db
+    environment:
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      POSTGRES_PASSWORD: ${KONG_PG_PASSWORD:-kongpass}
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+    volumes:
+      - kong-db-data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    networks:
+      - syncscope-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KONG_PG_USER:-kong}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # =============================================================================
+  # Kong Database Migrations
+  # =============================================================================
+  kong-migration:
+    image: kong:3.8-alpine
+    container_name: syncscope-kong-migration
+    command: kong migrations bootstrap
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kongpass}
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+    networks:
+      - syncscope-network
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    restart: on-failure
+
+  # =============================================================================
+  # Kong API Gateway
+  # =============================================================================
+  kong:
+    image: kong:3.8-alpine
+    container_name: syncscope-kong
+    environment:
+      # Database Configuration
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: kong-database
+      KONG_PG_PORT: 5432
+      KONG_PG_USER: ${KONG_PG_USER:-kong}
+      KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kongpass}
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+
+      # Kong Configuration
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8081
+      KONG_ADMIN_GUI_URL: http://localhost:8002
+
+      # Declarative Configuration
+      KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
+
+      # Proxy Configuration
+      KONG_PROXY_LISTEN: 0.0.0.0:8080, 0.0.0.0:8443 ssl
+      KONG_REAL_IP_HEADER: X-Forwarded-For
+      KONG_TRUSTED_IPS: 0.0.0.0/0,::/0
+
+      # DNS Configuration
+      KONG_DNS_ORDER: LAST,A,CNAME,SRV
+      KONG_DNS_NO_SYNC: "off"
+
+      # Nginx Configuration
+      KONG_NGINX_WORKER_PROCESSES: ${KONG_NGINX_WORKER_PROCESSES:-2}
+      KONG_NGINX_DAEMON: "off"
+
+      # Headers
+      KONG_HEADERS: server_tokens=off
+      KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 1000
+      KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
+
+      # Plugins
+      KONG_PLUGINS: bundled
+
+      # Security
+      KONG_SSL_CIPHER_SUITE: intermediate
+
+      # Environment-specific settings
+      KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-info}
+      KONG_ADMIN_GUI_PATH: /manager
+
+    volumes:
+      - ./kong.yml:/etc/kong/kong.yml:ro
+      - ./config:/etc/kong/config:ro
+
+    ports:
+      - "${KONG_PROXY_PORT:-8080}:8080"     # HTTP Proxy
+      - "${KONG_PROXY_SSL_PORT:-8443}:8443" # HTTPS Proxy
+      - "${KONG_ADMIN_PORT:-8081}:8081"     # Admin API
+      - "${KONG_ADMIN_GUI_PORT:-8002}:8002" # Admin GUI
+
+    networks:
+      - syncscope-network
+
+    depends_on:
+      kong-database:
+        condition: service_healthy
+      kong-migration:
+        condition: service_completed_successfully
+
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    restart: unless-stopped
+
+  # =============================================================================
+  # Konga - Kong Admin UI (Optional)
+  # =============================================================================
+  konga:
+    image: pantsel/konga:latest
+    container_name: syncscope-konga
+    environment:
+      TOKEN_SECRET: ${KONGA_TOKEN_SECRET:-konga-secret-token}
+      DB_ADAPTER: postgres
+      DB_HOST: kong-database
+      DB_PORT: 5432
+      DB_USER: ${KONG_PG_USER:-kong}
+      DB_PASSWORD: ${KONG_PG_PASSWORD:-kongpass}
+      DB_DATABASE: ${KONGA_PG_DATABASE:-konga}
+      NODE_ENV: ${ENVIRONMENT:-development}
+      KONGA_HOOK_TIMEOUT: 120000
+    ports:
+      - "${KONGA_PORT:-1337}:1337"
+    networks:
+      - syncscope-network
+    depends_on:
+      kong-database:
+        condition: service_healthy
+    restart: unless-stopped
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  syncscope-network:
+    driver: bridge
+    name: syncscope-network
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  kong-db-data:
+    driver: local
+    name: syncscope-kong-db-data
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# 1. Start all services:
+#    docker-compose up -d
+#
+# 2. Start only Kong and database:
+#    docker-compose up -d kong-database kong-migration kong
+#
+# 3. View logs:
+#    docker-compose logs -f kong
+#
+# 4. Stop all services:
+#    docker-compose down
+#
+# 5. Remove volumes (WARNING: deletes all data):
+#    docker-compose down -v
+#
+# 6. Access points:
+#    - Kong Proxy: http://localhost:8080
+#    - Kong Admin API: http://localhost:8081
+#    - Konga Admin UI: http://localhost:1337
+#
+# 7. Configure Konga:
+#    - First time setup: Create admin user
+#    - Add Kong connection: http://kong:8081
+#
+# =============================================================================

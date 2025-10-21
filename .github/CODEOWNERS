@@ -1,0 +1,32 @@
+# CODEOWNERS file for SyncScope API Gateway
+# This file defines code ownership for automatic review assignments
+
+# Global default owners (fallback for any files not specified below)
+* @AlejandroBeltre
+
+# Production branch protection - requires manual approval
+# All changes to production-related files require owner approval
+/prod/* @AlejandroBeltre
+/production/* @AlejandroBeltre
+
+# Critical configuration files
+/.env* @AlejandroBeltre
+/kong.yml @AlejandroBeltre
+/docker-compose*.yml @AlejandroBeltre
+/Dockerfile @AlejandroBeltre
+/prometheus.yml @AlejandroBeltre
+
+# Kong configuration directory
+/config/ @AlejandroBeltre
+
+# Scripts (setup, health checks)
+/scripts/ @AlejandroBeltre
+
+# GitHub workflows and settings
+/.github/ @AlejandroBeltre
+
+# Infrastructure and deployment
+/docker-compose*.yml @AlejandroBeltre
+
+# Documentation that affects deployment
+/README.md @AlejandroBeltre
