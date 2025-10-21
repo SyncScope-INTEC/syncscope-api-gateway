@@ -27,7 +27,7 @@ ENV KONG_PLUGINS=${KONG_PLUGINS:-bundled,pre-function}
 USER root
 
 # Install nginx for serving static files
-RUN apk add --no-cache nginx
+RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
 
 # Copy configuration and static files
 COPY kong.yml /etc/kong/kong.yml
