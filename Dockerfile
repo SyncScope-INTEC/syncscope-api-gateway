@@ -26,12 +26,21 @@ ENV KONG_PLUGINS=${KONG_PLUGINS:-bundled,pre-function}
 
 USER root
 
+# Install nginx for serving static files
+RUN apk add --no-cache nginx
+
+# Copy configuration and static files
 COPY kong.yml /etc/kong/kong.yml
 COPY static/ /usr/local/kong/static/
+COPY nginx-static.conf /etc/nginx/nginx-static.conf
+COPY start.sh /usr/local/bin/start.sh
+
+# Make startup script executable
+RUN chmod +x /usr/local/bin/start.sh
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
   CMD kong health
 
 EXPOSE 8080 8081 8443
 
-CMD ["sh", "-c", "export KONG_PROXY_LISTEN=\"0.0.0.0:${PORT:-8080}\" && kong migrations bootstrap && kong config db_import /etc/kong/kong.yml && kong start --vv"]
+CMD ["/usr/local/bin/start.sh"]

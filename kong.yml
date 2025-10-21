@@ -14,6 +14,46 @@ _format_version: "3.0"
 
 services:
   # ---------------------------------------------------------------------------
+  # Static Files Service (Home page and favicon)
+  # ---------------------------------------------------------------------------
+  - name: static-service
+    url: http://localhost:8888
+    protocol: http
+    connect_timeout: 5000
+    write_timeout: 5000
+    read_timeout: 5000
+    retries: 0
+    tags:
+      - static
+      - internal
+
+    routes:
+      # Home page route
+      - name: gateway-home
+        paths:
+          - /
+        methods:
+          - GET
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - home
+
+      # Favicon route
+      - name: gateway-favicon
+        paths:
+          - /favicon.svg
+          - /favicon.ico
+        methods:
+          - GET
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - static
+
+  # ---------------------------------------------------------------------------
   # Kong Health Check Service (for Railway health checks)
   # ---------------------------------------------------------------------------
   - name: kong-health-service
@@ -28,36 +68,6 @@ services:
       - internal
 
     routes:
-      # Root home page route
-      - name: gateway-home
-        paths:
-          - /
-        methods:
-          - GET
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - home
-        plugins:
-          - name: pre-function
-            config:
-              access:
-                - |
-                  local file = io.open("/usr/local/kong/static/index.html", "r")
-                  if file then
-                    local content = file:read("*a")
-                    file:close()
-                    kong.response.exit(200, content, {
-                      ["Content-Type"] = "text/html; charset=utf-8",
-                      ["Cache-Control"] = "public, max-age=3600"
-                    })
-                  else
-                    kong.response.exit(404, "Home page not found", {
-                      ["Content-Type"] = "text/plain"
-                    })
-                  end
-
       - name: kong-health-check
         paths:
           - /health
