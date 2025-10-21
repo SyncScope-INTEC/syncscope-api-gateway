@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SyncScope API Gateway</title>
+    <style>
+        :root {
+            /* Light theme */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #1a1a1a;
+            --text-secondary: #666666;
+            --text-muted: #888888;
+            --border-color: #e5e7eb;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #a3e635;
+            --success-color: #10b981;
+            --hover-bg: #f3f4f6;
+        }
+
+        [data-theme="dark"] {
+            /* Dark theme */
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a2e;
+            --text-primary: #ffffff;
+            --text-secondary: #d1d5db;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #a3e635;
+            --success-color: #10b981;
+            --hover-bg: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-text {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-text:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .version-badge {
+            background: var(--accent-primary);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-bg);
+            transform: translateY(-1px);
+        }
+
+        .theme-icon {
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* Service Overview */
+        .service-intro {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .service-description {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Quick Access */
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .route-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .route-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow);
+            border-color: var(--accent-primary);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .route-icon {
+            font-size: 1.5rem;
+            width: 48px;
+            height: 48px;
+            background: var(--accent-primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .route-content {
+            flex: 1;
+        }
+
+        .route-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .route-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Service Features */
+        .features-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .features-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .feature-tag {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .feature-tag.service {
+            background: var(--accent-primary);
+            color: white;
+            border-color: transparent;
+        }
+
+        .feature-tag:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                padding: 0 1rem;
+            }
+
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .brand-text {
+                display: none;
+            }
+
+            .routes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .route-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .route-icon {
+                align-self: center;
+            }
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-text">🌐</div>
+
+                <div class="brand-text">
+                    <div class="brand-title">SyncScope API Gateway</div>
+                    <div class="brand-subtitle">Kong Gateway</div>
+                </div>
+            </div>
+
+            <div class="header-controls">
+                <div class="version-badge">v3.8</div>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container fade-in">
+        <div class="service-intro">
+            <p class="service-description">
+                Unified API Gateway for the SyncScope platform. All backend services are accessible through this gateway with built-in authentication, rate limiting, and load balancing.
+            </p>
+        </div>
+
+        <div class="routes-section">
+            <h2 class="section-title">🚀 Backend Services</h2>
+            <div class="routes-grid">
+                <a href="/auth/" class="route-card">
+                    <div class="route-icon">🔐</div>
+                    <div class="route-content">
+                        <div class="route-title">Auth Service</div>
+                        <div class="route-description">User authentication, registration, and session management</div>
+                    </div>
+                </a>
+
+                <a href="/monitoring/" class="route-card">
+                    <div class="route-icon">📊</div>
+                    <div class="route-content">
+                        <div class="route-title">Monitoring Service</div>
+                        <div class="route-description">Activity tracking and productivity monitoring</div>
+                    </div>
+                </a>
+
+                <a href="/management/" class="route-card">
+                    <div class="route-icon">⚙️</div>
+                    <div class="route-content">
+                        <div class="route-title">Management Service</div>
+                        <div class="route-description">User, team, and project management</div>
+                    </div>
+                </a>
+
+                <a href="/analytics/" class="route-card">
+                    <div class="route-icon">📈</div>
+                    <div class="route-content">
+                        <div class="route-title">Analytics Service</div>
+                        <div class="route-description">Productivity reports and data analytics</div>
+                    </div>
+                </a>
+
+                <a href="/alerts/" class="route-card">
+                    <div class="route-icon">🔔</div>
+                    <div class="route-content">
+                        <div class="route-title">Alerts Service</div>
+                        <div class="route-description">Alert configuration and notification management</div>
+                    </div>
+                </a>
+
+                <a href="/health" class="route-card">
+                    <div class="route-icon">❤️</div>
+                    <div class="route-content">
+                        <div class="route-title">Health Check</div>
+                        <div class="route-description">Gateway health status and monitoring</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2 class="section-title">⚡ Gateway Features</h2>
+            <div class="features-grid">
+                <span class="feature-tag">JWT Authentication</span>
+                <span class="feature-tag">Rate Limiting</span>
+                <span class="feature-tag">CORS Support</span>
+                <span class="feature-tag">Request Logging</span>
+                <span class="feature-tag">Load Balancing</span>
+                <span class="feature-tag service">🔐 Auth Service</span>
+                <span class="feature-tag service">📊 Monitoring Service</span>
+                <span class="feature-tag service">⚙️ Management Service</span>
+                <span class="feature-tag service">📈 Analytics Service</span>
+                <span class="feature-tag service">🔔 Alerts Service</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-icon');
+
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Load saved theme
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const body = document.body;
+            const themeIcon = document.querySelector('.theme-icon');
+
+            body.setAttribute('data-theme', savedTheme);
+            themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Initialize theme on page load
+        document.addEventListener('DOMContentLoaded', loadTheme);
+
+        // Add smooth hover effects
+        document.querySelectorAll('.route-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

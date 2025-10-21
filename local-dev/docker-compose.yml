@@ -101,6 +101,7 @@ services:
 
     volumes:
       - ../kong.yml:/etc/kong/kong.yml:ro
+      - ../static:/usr/local/kong/static:ro
 
     ports:
       - "${KONG_PROXY_PORT:-8080}:8080" # HTTP Proxy

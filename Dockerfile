@@ -22,11 +22,12 @@ ENV KONG_SSL_CIPHER_SUITE=${KONG_SSL_CIPHER_SUITE:-intermediate}
 ENV KONG_SERVER_TOKENS_HEADER=off
 ENV KONG_REAL_IP_HEADER=X-Forwarded-For
 ENV KONG_TRUSTED_IPS="0.0.0.0/0,::/0"
-ENV KONG_PLUGINS=${KONG_PLUGINS:-bundled}
+ENV KONG_PLUGINS=${KONG_PLUGINS:-bundled,pre-function}
 
 USER root
 
 COPY kong.yml /etc/kong/kong.yml
+COPY static/ /usr/local/kong/static/
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
   CMD kong health
