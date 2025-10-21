@@ -44,8 +44,8 @@ services:
   # Auth Service (Port 8000)
   # ---------------------------------------------------------------------------
   - name: auth-service
-    url: http://syncscope-auth-service:8000
-    protocol: http
+    url: https://syncscope-auth-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
@@ -123,8 +123,8 @@ services:
   # Monitoring Service (Port 8002)
   # ---------------------------------------------------------------------------
   - name: monitoring-service
-    url: http://syncscope-monitoring-service:8002
-    protocol: http
+    url: https://syncscope-monitoring-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
@@ -162,8 +162,8 @@ services:
   # Management Service (Port 8001)
   # ---------------------------------------------------------------------------
   - name: management-service
-    url: http://syncscope-management-service:8001
-    protocol: http
+    url: https://syncscope-management-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
@@ -201,8 +201,8 @@ services:
   # Analytics Service (Port 8003)
   # ---------------------------------------------------------------------------
   - name: analytics-service
-    url: http://syncscope-analytics-service:8003
-    protocol: http
+    url: https://syncscope-analytics-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
@@ -240,8 +240,8 @@ services:
   # Alerts Service (Port 8004)
   # ---------------------------------------------------------------------------
   - name: alerts-service
-    url: http://syncscope-alerts-service:8004
-    protocol: http
+    url: https://syncscope-alerts-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 60000
     write_timeout: 60000
     read_timeout: 60000
