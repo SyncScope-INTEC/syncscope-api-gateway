@@ -85,8 +85,7 @@ services:
       KONG_NGINX_WORKER_PROCESSES: ${KONG_NGINX_WORKER_PROCESSES:-2}
       KONG_NGINX_DAEMON: "off"
 
-      # Headers
-      KONG_HEADERS: server_tokens=off
+      # Upstream Configuration
       KONG_UPSTREAM_KEEPALIVE_MAX_REQUESTS: 1000
       KONG_UPSTREAM_KEEPALIVE_IDLE_TIMEOUT: 60
 
