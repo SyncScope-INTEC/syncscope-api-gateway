@@ -33,4 +33,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
 
 EXPOSE 8080 8081 8443
 
-CMD ["kong", "docker-start"]
+CMD ["sh", "-c", "kong migrations bootstrap && kong start --vv"]
