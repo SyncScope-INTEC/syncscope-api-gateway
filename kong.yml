@@ -28,6 +28,36 @@ services:
       - internal
 
     routes:
+      # Root home page route
+      - name: gateway-home
+        paths:
+          - /
+        methods:
+          - GET
+        strip_path: false
+        preserve_host: false
+        tags:
+          - public
+          - home
+        plugins:
+          - name: pre-function
+            config:
+              access:
+                - |
+                  local file = io.open("/usr/local/kong/static/index.html", "r")
+                  if file then
+                    local content = file:read("*a")
+                    file:close()
+                    kong.response.exit(200, content, {
+                      ["Content-Type"] = "text/html; charset=utf-8",
+                      ["Cache-Control"] = "public, max-age=3600"
+                    })
+                  else
+                    kong.response.exit(404, "Home page not found", {
+                      ["Content-Type"] = "text/plain"
+                    })
+                  end
+
       - name: kong-health-check
         paths:
           - /health
