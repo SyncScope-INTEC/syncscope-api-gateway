@@ -1,4 +1,5 @@
-version: '3.9'
+# Docker Compose file for local development only
+# For Railway deployment, see ../Dockerfile and ../railway.toml
 
 services:
   # =============================================================================
@@ -28,7 +29,7 @@ services:
   # Kong Database Migrations
   # =============================================================================
   kong-migration:
-    image: kong:3.8-alpine
+    image: kong:3.4-alpine
     container_name: syncscope-kong-migration
     command: kong migrations bootstrap
     environment:
@@ -49,7 +50,7 @@ services:
   # Kong API Gateway
   # =============================================================================
   kong:
-    image: kong:3.8-alpine
+    image: kong:3.4-alpine
     container_name: syncscope-kong
     environment:
       # Database Configuration
