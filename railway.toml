@@ -1,0 +1,70 @@
+# =============================================================================
+# Railway Configuration for SyncScope API Gateway (Kong)
+# =============================================================================
+# This file configures how Railway builds and deploys the Kong API Gateway
+# https://docs.railway.app/reference/config-as-code
+# =============================================================================
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "kong docker-start"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# =============================================================================
+# ENVIRONMENT-SPECIFIC CONFIGURATION
+# =============================================================================
+
+# Development Environment
+[[deploy.environmentOverrides]]
+environment = "dev"
+
+[deploy.environmentOverrides.healthcheck]
+path = "/health"
+timeout = 300
+
+# QA Environment
+[[deploy.environmentOverrides]]
+environment = "qa"
+
+[deploy.environmentOverrides.healthcheck]
+path = "/health"
+timeout = 300
+
+# Production Environment
+[[deploy.environmentOverrides]]
+environment = "prod"
+
+[deploy.environmentOverrides.healthcheck]
+path = "/health"
+timeout = 300
+
+# =============================================================================
+# NOTES
+# =============================================================================
+# Required Environment Variables (set in Railway dashboard):
+#
+# Database Configuration:
+#   - KONG_PG_HOST (from Railway PostgreSQL service)
+#   - KONG_PG_PORT (from Railway PostgreSQL service)
+#   - KONG_PG_USER (from Railway PostgreSQL service)
+#   - KONG_PG_PASSWORD (from Railway PostgreSQL service)
+#   - KONG_PG_DATABASE=kong
+#   - KONG_DATABASE=postgres
+#
+# Kong Configuration:
+#   - KONG_LOG_LEVEL=info (or debug for dev, warn for prod)
+#   - KONG_NGINX_WORKER_PROCESSES=auto
+#   - KONG_PLUGINS=bundled,rate-limiting,cors,jwt,file-log,request-size-limiting,response-transformer
+#   - KONG_SSL_CIPHER_SUITE=intermediate (or modern for prod)
+#
+# Railway automatically provides:
+#   - PORT (Kong proxy will listen on this port)
+#   - RAILWAY_ENVIRONMENT (dev, qa, or prod)
+#
+# =============================================================================
