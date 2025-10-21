@@ -100,8 +100,7 @@ services:
       KONG_ADMIN_GUI_PATH: /manager
 
     volumes:
-      - ./kong.yml:/etc/kong/kong.yml:ro
-      - ./config:/etc/kong/config:ro
+      - ../kong.yml:/etc/kong/kong.yml:ro
 
     ports:
       - "${KONG_PROXY_PORT:-8080}:8080"     # HTTP Proxy
