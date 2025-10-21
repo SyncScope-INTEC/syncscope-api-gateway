@@ -17,7 +17,7 @@ services:
   # Kong Health Check Service (for Railway health checks)
   # ---------------------------------------------------------------------------
   - name: kong-health-service
-    url: http://localhost:8001/status
+    url: http://localhost:8081/status
     protocol: http
     connect_timeout: 5000
     write_timeout: 5000
