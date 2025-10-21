@@ -1,0 +1,37 @@
+_format_version: "3.0"
+
+# =============================================================================
+# Minimal Kong Configuration for CI Testing
+# =============================================================================
+# This is a minimal configuration used only for CI/CD pipeline testing.
+# It verifies that Kong starts correctly without requiring actual services.
+# =============================================================================
+
+services:
+  # Mock health check service that points to Kong itself
+  - name: test-service
+    url: http://localhost:8081
+    protocol: http
+    connect_timeout: 5000
+    write_timeout: 5000
+    read_timeout: 5000
+    
+    routes:
+      - name: test-route
+        paths:
+          - /test
+        methods:
+          - GET
+        strip_path: false
+
+# Minimal CORS configuration for testing
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - OPTIONS
+      credentials: false
