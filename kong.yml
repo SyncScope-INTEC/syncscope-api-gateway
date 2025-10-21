@@ -91,6 +91,52 @@ services:
           - public
           - health
 
+      # Root endpoint
+      - name: auth-root
+        paths:
+          - /
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - info
+
+      # Global health endpoints
+      - name: auth-health-detailed
+        paths:
+          - /health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: auth-health-live
+        paths:
+          - /health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: auth-health-ready
+        paths:
+          - /health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
   # ---------------------------------------------------------------------------
   # Monitoring Service (Port 8002)
   # ---------------------------------------------------------------------------
@@ -124,6 +170,41 @@ services:
       - name: monitoring-health
         paths:
           - /monitoring/health
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # Root endpoint
+      - name: monitoring-root
+        paths:
+          - /
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - info
+
+      # Global health endpoints
+      - name: monitoring-health-simple
+        paths:
+          - /simple-health
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: monitoring-health-detailed
+        paths:
+          - /health
+        methods:
+          - GET
+          - OPTIONS
         strip_path: false
         tags:
           - public
@@ -167,6 +248,75 @@ services:
           - public
           - health
 
+      # API integration endpoint for analytics service
+      - name: management-api-teams
+        paths:
+          - /api/teams
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - protected
+          - api
+
+      # Favicon endpoint
+      - name: management-favicon
+        paths:
+          - /favicon.ico
+        methods:
+          - GET
+        strip_path: false
+        tags:
+          - public
+          - static
+
+      # Root endpoint
+      - name: management-root
+        paths:
+          - /
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - info
+
+      # Global health endpoints
+      - name: management-health-detailed
+        paths:
+          - /health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: management-health-live
+        paths:
+          - /health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: management-health-ready
+        paths:
+          - /health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
   # ---------------------------------------------------------------------------
   # Analytics Service (Port 8003)
   # ---------------------------------------------------------------------------
@@ -205,6 +355,52 @@ services:
           - public
           - health
 
+      # Root endpoint
+      - name: analytics-root
+        paths:
+          - /
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - info
+
+      # Global health endpoints
+      - name: analytics-health-detailed
+        paths:
+          - /health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: analytics-health-live
+        paths:
+          - /health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: analytics-health-ready
+        paths:
+          - /health/ready
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
   # ---------------------------------------------------------------------------
   # Alerts Service (Port 8004)
   # ---------------------------------------------------------------------------
@@ -238,6 +434,51 @@ services:
       - name: alerts-health
         paths:
           - /alerts/health
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      # Global health endpoints
+      - name: alerts-health-root
+        paths:
+          - /health
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: alerts-health-detailed
+        paths:
+          - /health/detailed
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: alerts-health-live
+        paths:
+          - /health/live
+        methods:
+          - GET
+          - OPTIONS
+        strip_path: false
+        tags:
+          - public
+          - health
+
+      - name: alerts-health-ready
+        paths:
+          - /health/ready
+        methods:
+          - GET
+          - OPTIONS
         strip_path: false
         tags:
           - public
