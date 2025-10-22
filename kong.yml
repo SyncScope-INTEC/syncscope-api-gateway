@@ -14,21 +14,21 @@ _format_version: "3.0"
 
 services:
   # ---------------------------------------------------------------------------
-  # Static Files Service (Home page and favicon)
+  # API Gateway Root - Returns API Information
   # ---------------------------------------------------------------------------
-  - name: static-service
-    url: http://localhost:8888
+  - name: gateway-root-service
+    url: http://localhost:8081/status
     protocol: http
     connect_timeout: 5000
     write_timeout: 5000
     read_timeout: 5000
     retries: 0
     tags:
-      - static
+      - gateway
       - internal
 
     routes:
-      # Home page route
+      # Home page route - returns API info
       - name: gateway-home
         paths:
           - /
@@ -39,19 +39,38 @@ services:
         tags:
           - public
           - home
-
-      # Favicon route
-      - name: gateway-favicon
-        paths:
-          - /favicon.svg
-          - /favicon.ico
-        methods:
-          - GET
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - static
+        plugins:
+          - name: pre-function
+            config:
+              access:
+                - |
+                  kong.response.exit(200, {
+                    message = "Welcome to SyncScope API Gateway",
+                    version = "1.0.0",
+                    environment = os.getenv("RAILWAY_ENVIRONMENT") or "dev",
+                    services = {
+                      "auth",
+                      "monitoring",
+                      "management",
+                      "analytics",
+                      "alerts"
+                    },
+                    endpoints = {
+                      health = "/health",
+                      auth = "/auth",
+                      monitoring = "/monitoring",
+                      management = "/management",
+                      analytics = "/analytics",
+                      alerts = "/alerts"
+                    },
+                    documentation = {
+                      auth = "/auth/api/docs",
+                      monitoring = "/monitoring/api/docs",
+                      management = "/management/api/docs",
+                      analytics = "/analytics/api/docs",
+                      alerts = "/alerts/api/docs"
+                    }
+                  }, {["Content-Type"] = "application/json"})
 
   # ---------------------------------------------------------------------------
   # Kong Health Check Service (for Railway health checks)

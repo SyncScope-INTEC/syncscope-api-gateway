@@ -26,13 +26,8 @@ ENV KONG_PLUGINS=${KONG_PLUGINS:-bundled,pre-function}
 
 USER root
 
-# Install nginx for serving static files
-RUN apt-get update && apt-get install -y nginx && rm -rf /var/lib/apt/lists/*
-
-# Copy configuration and static files
+# Copy Kong configuration
 COPY kong.yml /etc/kong/kong.yml
-COPY static/ /usr/local/kong/static/
-COPY nginx-static.conf /etc/nginx/nginx-static.conf
 COPY start.sh /usr/local/bin/start.sh
 
 # Make startup script executable
