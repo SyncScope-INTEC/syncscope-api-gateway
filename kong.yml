@@ -12,11 +12,11 @@ _format_version: "3.0"
 
 services:
   # ---------------------------------------------------------------------------
-  # Gateway Root - Redirect to Auth Service
+  # Gateway Root - API Gateway Landing Page
   # ---------------------------------------------------------------------------
   - name: gateway-root-service
-    url: https://syncscope-auth-service-dev.up.railway.app
-    protocol: https
+    url: http://localhost:8081/status
+    protocol: http
     connect_timeout: 5000
     write_timeout: 5000
     read_timeout: 5000
@@ -31,11 +31,218 @@ services:
           - /
         methods:
           - GET
-        strip_path: true
+        strip_path: false
         preserve_host: false
         tags:
           - public
           - home
+        plugins:
+          - name: pre-function
+            config:
+              access:
+                - |
+                  local html = [[
+                  <!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                      <meta charset="UTF-8">
+                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                      <title>SyncScope API Gateway</title>
+                      <style>
+                          * { margin: 0; padding: 0; box-sizing: border-box; }
+                          body {
+                              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                              color: #fff;
+                              min-height: 100vh;
+                              padding: 40px 20px;
+                          }
+                          .container { max-width: 1200px; margin: 0 auto; }
+                          .header {
+                              text-align: center;
+                              margin-bottom: 60px;
+                              animation: fadeIn 0.6s ease-in;
+                          }
+                          h1 {
+                              font-size: 3.5rem;
+                              margin-bottom: 10px;
+                              font-weight: 700;
+                          }
+                          .subtitle {
+                              font-size: 1.2rem;
+                              opacity: 0.9;
+                              font-weight: 300;
+                          }
+                          .services-grid {
+                              display: grid;
+                              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                              gap: 30px;
+                              margin-bottom: 60px;
+                          }
+                          .service-card {
+                              background: rgba(255, 255, 255, 0.1);
+                              backdrop-filter: blur(10px);
+                              border-radius: 20px;
+                              padding: 30px;
+                              border: 1px solid rgba(255, 255, 255, 0.2);
+                              transition: all 0.3s ease;
+                              animation: slideUp 0.6s ease-out;
+                          }
+                          .service-card:hover {
+                              transform: translateY(-5px);
+                              background: rgba(255, 255, 255, 0.15);
+                              box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+                          }
+                          .service-name {
+                              font-size: 1.8rem;
+                              margin-bottom: 15px;
+                              font-weight: 600;
+                          }
+                          .service-links a {
+                              display: inline-block;
+                              margin: 5px 10px 5px 0;
+                              padding: 8px 16px;
+                              background: rgba(255, 255, 255, 0.2);
+                              border-radius: 8px;
+                              color: #fff;
+                              text-decoration: none;
+                              font-size: 0.9rem;
+                              transition: all 0.2s;
+                          }
+                          .service-links a:hover {
+                              background: rgba(255, 255, 255, 0.3);
+                              transform: scale(1.05);
+                          }
+                          .docs-section {
+                              background: rgba(255, 255, 255, 0.1);
+                              backdrop-filter: blur(10px);
+                              border-radius: 20px;
+                              padding: 40px;
+                              border: 1px solid rgba(255, 255, 255, 0.2);
+                              margin-top: 40px;
+                          }
+                          .docs-section h2 {
+                              font-size: 2rem;
+                              margin-bottom: 20px;
+                          }
+                          .docs-section pre {
+                              background: rgba(0, 0, 0, 0.3);
+                              padding: 20px;
+                              border-radius: 10px;
+                              overflow-x: auto;
+                              margin: 15px 0;
+                              font-size: 0.9rem;
+                          }
+                          .docs-section code {
+                              color: #a5f3fc;
+                          }
+                          @keyframes fadeIn {
+                              from { opacity: 0; }
+                              to { opacity: 1; }
+                          }
+                          @keyframes slideUp {
+                              from {
+                                  opacity: 0;
+                                  transform: translateY(30px);
+                              }
+                              to {
+                                  opacity: 1;
+                                  transform: translateY(0);
+                              }
+                          }
+                      </style>
+                  </head>
+                  <body>
+                      <div class="container">
+                          <div class="header">
+                              <h1>🚀 SyncScope API Gateway</h1>
+                              <p class="subtitle">Central hub for all SyncScope microservices</p>
+                          </div>
+
+                          <div class="services-grid">
+                              <div class="service-card">
+                                  <div class="service-name">🔐 Auth Service</div>
+                                  <p>User authentication, JWT tokens, OAuth</p>
+                                  <div class="service-links">
+                                      <a href="/auth">Home</a>
+                                      <a href="/auth/api/docs">API Docs</a>
+                                      <a href="/auth/health">Health</a>
+                                  </div>
+                              </div>
+
+                              <div class="service-card">
+                                  <div class="service-name">📊 Monitoring Service</div>
+                                  <p>Activity tracking, productivity metrics</p>
+                                  <div class="service-links">
+                                      <a href="/monitoring">Home</a>
+                                      <a href="/monitoring/api/docs">API Docs</a>
+                                      <a href="/monitoring/health">Health</a>
+                                  </div>
+                              </div>
+
+                              <div class="service-card">
+                                  <div class="service-name">⚙️ Management Service</div>
+                                  <p>User management, teams, organizations</p>
+                                  <div class="service-links">
+                                      <a href="/management">Home</a>
+                                      <a href="/management/api/docs">API Docs</a>
+                                      <a href="/management/health">Health</a>
+                                  </div>
+                              </div>
+
+                              <div class="service-card">
+                                  <div class="service-name">📈 Analytics Service</div>
+                                  <p>Reports, insights, data analytics</p>
+                                  <div class="service-links">
+                                      <a href="/analytics">Home</a>
+                                      <a href="/analytics/api/docs">API Docs</a>
+                                      <a href="/analytics/health">Health</a>
+                                  </div>
+                              </div>
+
+                              <div class="service-card">
+                                  <div class="service-name">🔔 Alerts Service</div>
+                                  <p>Notifications, alerts, webhooks</p>
+                                  <div class="service-links">
+                                      <a href="/alerts">Home</a>
+                                      <a href="/alerts/api/docs">API Docs</a>
+                                      <a href="/alerts/health">Health</a>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div class="docs-section">
+                              <h2>📚 How to Use the API Gateway</h2>
+
+                              <h3>1. Authentication</h3>
+                              <p>First, obtain a JWT token from the auth service:</p>
+                              <pre><code>curl -X POST https://syncscope-api-gateway-dev.up.railway.app/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "your@email.com", "password": "your-password"}'</code></pre>
+
+                              <h3>2. Making Authenticated Requests</h3>
+                              <p>Include the JWT token in the Authorization header:</p>
+                              <pre><code>curl https://syncscope-api-gateway-dev.up.railway.app/auth/profile \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"</code></pre>
+
+                              <h3>3. Service Routes</h3>
+                              <p>All services are accessible through the gateway:</p>
+                              <ul style="margin-left: 20px; margin-top: 10px;">
+                                  <li><strong>/auth/*</strong> - Authentication & user management</li>
+                                  <li><strong>/monitoring/*</strong> - Activity & productivity tracking</li>
+                                  <li><strong>/management/*</strong> - Organization management</li>
+                                  <li><strong>/analytics/*</strong> - Reports & analytics</li>
+                                  <li><strong>/alerts/*</strong> - Notifications & alerts</li>
+                              </ul>
+
+                              <h3>4. CORS & Security</h3>
+                              <p>The gateway handles CORS automatically. All requests are secured with rate limiting and request size validation.</p>
+                          </div>
+                      </div>
+                  </body>
+                  </html>
+                  ]]
+                  kong.response.exit(200, html, {["Content-Type"] = "text/html"})
 
   # ---------------------------------------------------------------------------
   # Kong Health Check (for Railway)
