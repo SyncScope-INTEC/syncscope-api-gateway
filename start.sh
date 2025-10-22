@@ -11,6 +11,14 @@ export KONG_PROXY_LISTEN="0.0.0.0:${PORT:-8080}"
 echo "Running Kong database migrations..."
 kong migrations bootstrap
 
+# Reset Kong database to clean state
+echo "Resetting Kong database (removing old routes)..."
+kong migrations reset --yes || true
+
+# Re-run migrations after reset
+echo "Running Kong migrations again..."
+kong migrations bootstrap
+
 # Import Kong declarative config into database
 echo "Importing Kong declarative configuration..."
 kong config db_import /etc/kong/kong.yml
