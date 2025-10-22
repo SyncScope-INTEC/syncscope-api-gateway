@@ -3,18 +3,16 @@ _format_version: "3.0"
 # =============================================================================
 # SyncScope API Gateway - Kong Declarative Configuration
 # =============================================================================
-# This configuration defines all services, routes, and plugins for the
-# SyncScope microservices architecture.
+# Simplified routing with proper path stripping for all services
 # =============================================================================
 
 # =============================================================================
-# SERVICES
+# SERVICES & ROUTES
 # =============================================================================
-# Define upstream services with health checks and load balancing
 
 services:
   # ---------------------------------------------------------------------------
-  # API Gateway Root - Returns API Information
+  # Gateway Root - API Information
   # ---------------------------------------------------------------------------
   - name: gateway-root-service
     url: http://localhost:8081/status
@@ -28,7 +26,6 @@ services:
       - internal
 
     routes:
-      # Home page route - returns API info
       - name: gateway-home
         paths:
           - /
@@ -40,40 +37,14 @@ services:
           - public
           - home
         plugins:
-          - name: pre-function
+          - name: request-termination
             config:
-              access:
-                - |
-                  kong.response.exit(200, {
-                    message = "Welcome to SyncScope API Gateway",
-                    version = "1.0.0",
-                    environment = os.getenv("RAILWAY_ENVIRONMENT") or "dev",
-                    services = {
-                      "auth",
-                      "monitoring",
-                      "management",
-                      "analytics",
-                      "alerts"
-                    },
-                    endpoints = {
-                      health = "/health",
-                      auth = "/auth",
-                      monitoring = "/monitoring",
-                      management = "/management",
-                      analytics = "/analytics",
-                      alerts = "/alerts"
-                    },
-                    documentation = {
-                      auth = "/auth/api/docs",
-                      monitoring = "/monitoring/api/docs",
-                      management = "/management/api/docs",
-                      analytics = "/analytics/api/docs",
-                      alerts = "/alerts/api/docs"
-                    }
-                  }, {["Content-Type"] = "application/json"})
+              status_code: 200
+              content_type: application/json
+              body: '{"message":"Welcome to SyncScope API Gateway","version":"1.0.0","services":["auth","monitoring","management","analytics","alerts"],"endpoints":{"health":"/health","auth":"/auth","monitoring":"/monitoring","management":"/management","analytics":"/analytics","alerts":"/alerts"},"documentation":{"auth":"/auth/api/docs","monitoring":"/monitoring/api/docs","management":"/management/api/docs","analytics":"/analytics/api/docs","alerts":"/alerts/api/docs"}}'
 
   # ---------------------------------------------------------------------------
-  # Kong Health Check Service (for Railway health checks)
+  # Kong Health Check (for Railway)
   # ---------------------------------------------------------------------------
   - name: kong-health-service
     url: http://localhost:8081/status
@@ -100,7 +71,7 @@ services:
           - public
 
   # ---------------------------------------------------------------------------
-  # Auth Service (Port 8000)
+  # Auth Service
   # ---------------------------------------------------------------------------
   - name: auth-service
     url: https://syncscope-auth-service-dev.up.railway.app
@@ -114,59 +85,7 @@ services:
       - auth
 
     routes:
-      # Root path
-      - name: auth-root
-        paths:
-          - /auth/
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - auth
-
-      # Public authentication routes (no JWT required)
-      - name: auth-login
-        paths:
-          - /auth/login
-        methods:
-          - POST
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - auth
-
-      - name: auth-register
-        paths:
-          - /auth/register
-        methods:
-          - POST
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - auth
-
-      - name: auth-oauth-github
-        paths:
-          - /auth/oauth/github
-          - /auth/github/url
-          - /auth/github/callback
-        methods:
-          - GET
-          - POST
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - auth
-
-      # Protected authentication routes
-      - name: auth-protected
+      - name: auth-all
         paths:
           - /auth
         methods:
@@ -176,57 +95,14 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
+        preserve_host: false
         tags:
-          - protected
+          - public
           - auth
 
-      # Health check endpoints
-      - name: auth-health
-        paths:
-          - /auth/health
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      # API documentation endpoints
-      - name: auth-api-schema
-        paths:
-          - /auth/api/schema
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: auth-api-docs
-        paths:
-          - /auth/api/docs
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: auth-api-redoc
-        paths:
-          - /auth/api/redoc
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-
   # ---------------------------------------------------------------------------
-  # Monitoring Service (Port 8002)
+  # Monitoring Service
   # ---------------------------------------------------------------------------
   - name: monitoring-service
     url: https://syncscope-monitoring-service-dev.up.railway.app
@@ -240,21 +116,7 @@ services:
       - monitoring
 
     routes:
-      # Root path
-      - name: monitoring-root
-        paths:
-          - /monitoring/
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - monitoring
-
-      # Protected monitoring routes
-      - name: monitoring-routes
+      - name: monitoring-all
         paths:
           - /monitoring
         methods:
@@ -264,91 +126,14 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
+        preserve_host: false
         tags:
-          - protected
+          - public
           - monitoring
 
-      # Health check endpoints
-      - name: monitoring-health
-        paths:
-          - /monitoring/health
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: monitoring-simple-health
-        paths:
-          - /monitoring/simple-health
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      # Debug endpoints (public for testing)
-      - name: monitoring-debug-test-auth
-        paths:
-          - /monitoring/debug/test-auth-service
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - debug
-
-      - name: monitoring-debug-test-settings
-        paths:
-          - /monitoring/debug/test-settings
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - debug
-
-      # API documentation endpoints
-      - name: monitoring-api-schema
-        paths:
-          - /monitoring/api/schema
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: monitoring-api-docs
-        paths:
-          - /monitoring/api/docs
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: monitoring-api-redoc
-        paths:
-          - /monitoring/api/redoc
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-
   # ---------------------------------------------------------------------------
-  # Management Service (Port 8001)
+  # Management Service
   # ---------------------------------------------------------------------------
   - name: management-service
     url: https://syncscope-management-service-dev.up.railway.app
@@ -362,21 +147,7 @@ services:
       - management
 
     routes:
-      # Root path
-      - name: management-root
-        paths:
-          - /management/
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - management
-
-      # Protected management routes
-      - name: management-routes
+      - name: management-all
         paths:
           - /management
         methods:
@@ -386,101 +157,14 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
+        preserve_host: false
         tags:
-          - protected
+          - public
           - management
 
-      # Health check endpoints
-      - name: management-health
-        paths:
-          - /management/health
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: management-health-detailed
-        paths:
-          - /management/health/detailed
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: management-health-ready
-        paths:
-          - /management/health/ready
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: management-health-live
-        paths:
-          - /management/health/live
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      # Favicon
-      - name: management-favicon
-        paths:
-          - /management/favicon.ico
-        methods:
-          - GET
-        strip_path: false
-        tags:
-          - public
-          - static
-
-      # API documentation endpoints
-      - name: management-api-schema
-        paths:
-          - /management/api/schema
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: management-api-docs
-        paths:
-          - /management/api/docs
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: management-api-redoc
-        paths:
-          - /management/api/redoc
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-
   # ---------------------------------------------------------------------------
-  # Analytics Service (Port 8003)
+  # Analytics Service
   # ---------------------------------------------------------------------------
   - name: analytics-service
     url: https://syncscope-analytics-service-dev.up.railway.app
@@ -494,21 +178,7 @@ services:
       - analytics
 
     routes:
-      # Root path
-      - name: analytics-root
-        paths:
-          - /analytics/
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - analytics
-
-      # Protected analytics routes
-      - name: analytics-routes
+      - name: analytics-all
         paths:
           - /analytics
         methods:
@@ -518,90 +188,14 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
+        preserve_host: false
         tags:
-          - protected
+          - public
           - analytics
 
-      # Health check endpoints
-      - name: analytics-health
-        paths:
-          - /analytics/health
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: analytics-health-detailed
-        paths:
-          - /analytics/health/detailed
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: analytics-health-ready
-        paths:
-          - /analytics/health/ready
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: analytics-health-live
-        paths:
-          - /analytics/health/live
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      # API documentation endpoints
-      - name: analytics-api-schema
-        paths:
-          - /analytics/api/schema
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: analytics-api-docs
-        paths:
-          - /analytics/api/docs
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: analytics-api-redoc
-        paths:
-          - /analytics/api/redoc
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-
   # ---------------------------------------------------------------------------
-  # Alerts Service (Port 8004)
+  # Alerts Service
   # ---------------------------------------------------------------------------
   - name: alerts-service
     url: https://syncscope-alerts-service-dev.up.railway.app
@@ -615,21 +209,7 @@ services:
       - alerts
 
     routes:
-      # Root path
-      - name: alerts-root
-        paths:
-          - /alerts/
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        preserve_host: false
-        tags:
-          - public
-          - alerts
-
-      # Protected alerts routes
-      - name: alerts-routes
+      - name: alerts-all
         paths:
           - /alerts
         methods:
@@ -639,96 +219,19 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
+        preserve_host: false
         tags:
-          - protected
+          - public
           - alerts
-
-      # Health check endpoints
-      - name: alerts-health
-        paths:
-          - /alerts/health
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: alerts-health-detailed
-        paths:
-          - /alerts/health/detailed
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: alerts-health-ready
-        paths:
-          - /alerts/health/ready
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      - name: alerts-health-live
-        paths:
-          - /alerts/health/live
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - health
-
-      # API documentation endpoints
-      - name: alerts-api-schema
-        paths:
-          - /alerts/api/schema
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: alerts-api-docs
-        paths:
-          - /alerts/api/docs
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
-      - name: alerts-api-redoc
-        paths:
-          - /alerts/api/redoc
-        methods:
-          - GET
-          - OPTIONS
-        strip_path: false
-        tags:
-          - public
-          - docs
-
 
 # =============================================================================
 # GLOBAL PLUGINS
 # =============================================================================
-# Plugins applied to all routes
 
 plugins:
   # ---------------------------------------------------------------------------
-  # CORS Plugin - Enable cross-origin requests
+  # CORS - Enable cross-origin requests
   # ---------------------------------------------------------------------------
   - name: cors
     config:
@@ -770,7 +273,7 @@ plugins:
       - cors
 
   # ---------------------------------------------------------------------------
-  # Request Size Limiting - Prevent oversized payloads
+  # Request Size Limiting
   # ---------------------------------------------------------------------------
   - name: request-size-limiting
     config:
@@ -782,7 +285,7 @@ plugins:
       - security
 
   # ---------------------------------------------------------------------------
-  # Response Transformer - Add custom headers
+  # Response Transformer - Custom headers
   # ---------------------------------------------------------------------------
   - name: response-transformer
     config:
@@ -795,7 +298,7 @@ plugins:
       - headers
 
   # ---------------------------------------------------------------------------
-  # Request/Response Logging - Comprehensive logging
+  # Request/Response Logging
   # ---------------------------------------------------------------------------
   - name: file-log
     config:
@@ -808,7 +311,6 @@ plugins:
 # =============================================================================
 # CONSUMERS
 # =============================================================================
-# Define API consumers for authentication
 
 consumers:
   - username: anonymous
@@ -818,29 +320,18 @@ consumers:
 # =============================================================================
 # NOTES
 # =============================================================================
-# 1. JWT Authentication Plugin:
-#    - Applied at the route level for protected routes
-#    - Configure JWT_SECRET_KEY in environment variables
-#    - Token validation endpoint: /auth/verify-token
+# Path Routing:
+# - Gateway strips the service prefix (/auth, /monitoring, etc.)
+# - Example: /auth/api/docs → backend receives /api/docs
+# - Example: /monitoring/health → backend receives /health
 #
-# 2. Rate Limiting Plugin:
-#    - Configure different limits for anonymous vs authenticated users
-#    - Apply at service or route level as needed
+# All services support:
+# - API Documentation: /{service}/api/docs
+# - Health Checks: /{service}/health
+# - Full REST API: /{service}/*
 #
-# 3. Caching:
-#    - Implement proxy-cache plugin for cacheable endpoints
-#    - Recommended for analytics reports and dashboard data
-#
-# 4. SSL/TLS:
-#    - Configure certificates in Kong manager or via declarative config
-#    - Enable HTTPS redirect for production
-#
-# 5. Service Discovery:
-#    - Update service URLs based on your deployment environment
-#    - Use environment variables for dynamic configuration
-#
-# 6. Load Balancing:
-#    - Configure upstream targets for multiple service instances
-#    - Implement health checks for automatic failover
-#
+# To access service APIs through gateway:
+#   curl https://gateway.com/auth/api/docs
+#   curl https://gateway.com/monitoring/health
+#   curl https://gateway.com/management/api/schema
 # =============================================================================
