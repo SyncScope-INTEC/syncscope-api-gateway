@@ -12,11 +12,11 @@ _format_version: "3.0"
 
 services:
   # ---------------------------------------------------------------------------
-  # Gateway Root - API Information
+  # Gateway Root - Redirect to Auth Service
   # ---------------------------------------------------------------------------
   - name: gateway-root-service
-    url: http://localhost:8081/status
-    protocol: http
+    url: https://syncscope-auth-service-dev.up.railway.app
+    protocol: https
     connect_timeout: 5000
     write_timeout: 5000
     read_timeout: 5000
@@ -31,17 +31,11 @@ services:
           - /
         methods:
           - GET
-        strip_path: false
+        strip_path: true
         preserve_host: false
         tags:
           - public
           - home
-        plugins:
-          - name: request-termination
-            config:
-              status_code: 200
-              content_type: application/json
-              body: '{"message":"Welcome to SyncScope API Gateway","version":"1.0.0","services":["auth","monitoring","management","analytics","alerts"],"endpoints":{"health":"/health","auth":"/auth","monitoring":"/monitoring","management":"/management","analytics":"/analytics","alerts":"/alerts"},"documentation":{"auth":"/auth/api/docs","monitoring":"/monitoring/api/docs","management":"/management/api/docs","analytics":"/analytics/api/docs","alerts":"/alerts/api/docs"}}'
 
   # ---------------------------------------------------------------------------
   # Kong Health Check (for Railway)
