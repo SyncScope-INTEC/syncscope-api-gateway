@@ -25,4 +25,4 @@ kong config db_import /etc/kong/kong.yml
 
 # Start Kong in foreground
 echo "Starting Kong API Gateway..."
-exec kong start --vv
+exec kong start
