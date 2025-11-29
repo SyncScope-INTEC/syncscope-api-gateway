@@ -38,4 +38,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=60s \
 
 EXPOSE 8080 8081 8443
 
-CMD ["/usr/local/bin/start.sh"]
+CMD ["/bin/sh", "/usr/local/bin/start.sh"]
