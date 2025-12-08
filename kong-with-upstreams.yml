@@ -329,7 +329,7 @@ services:
           - DELETE
           - PATCH
           - OPTIONS
-        strip_path: false
+        strip_path: true
         tags:
           - protected
           - management
