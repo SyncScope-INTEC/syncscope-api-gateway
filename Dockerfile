@@ -1,4 +1,4 @@
-FROM kong/kong-gateway:3.13.0.0
+FROM kong/kong-gateway:3.16.0.0
 LABEL maintainer="SyncScope Team"
 LABEL description="Kong API Gateway for SyncScope - Railway Deployment"
 LABEL version="1.0.0"
